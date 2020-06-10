@@ -194,6 +194,15 @@ def mylinkhandler(self, cmd):
         refreshBrowser()
     elif cmd.startswith('miReload'):
         reloadReviewer(self)
+    elif  cmd.startswith('editGenChin◱'):
+        html, field, note = getHTMLFieldNote(self, cmd)
+        if field == 'Tags':
+            return
+        else:
+            if hasattr(mw, 'MIAChinese') and mw.MIAChinese:
+                genned = mw.MIAChinese.fetchParsed(html, field, note)
+                note[field] = genned
+                updateReviewerContents(self, note)
     elif  cmd.startswith('editGoButton◱'):
         html, field, note = getHTMLFieldNote(self, cmd)
         if field == 'Tags':
@@ -251,7 +260,7 @@ def getCleanedFieldName(fn):
     return fn
 
 def getEditableFields(text):
-    pattern = r'(<div display-type=\".+?\" class=\"wrapped-.{3,4}nese\">{{([^#^\/]+?)}}<\/div>)|({{([^#^\/]+?)}})'
+    pattern = r'(<div.*?display-type=\".+?\" class=\"wrapped-.{3,4}nese\">{{([^#^\/]+?)}}<\/div>)|({{([^#^\/]+?)}})'
     linksScriptsPattern = r'<a[^>]+?href=[^>]+?>|\<script\>[\s\S]+<\/script>'
     linksScripts = re.findall(linksScriptsPattern, text)
     text = re.sub(linksScriptsPattern, '◱link◱', text)

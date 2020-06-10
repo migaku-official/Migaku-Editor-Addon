@@ -251,6 +251,19 @@ function editGoButton(el, field){
     pycmd('editGoButton◱' + JSON.stringify([text]) + '◱' + field );
 }
 
+function genChineseButton(el, field){
+    gennedValue = true;
+    pycmd('editGenChin◱' + JSON.stringify([el.innerHTML]) + '◱' + field );
+}
+
+function clearChineseButton(el, field){
+    previousValue = removeChineseBrackets(el.innerHTML);
+    el.innerHTML = previousValue;
+    el.focus();
+    finalizeSelectedFieldEdit(el, el.dataset.field);
+}
+
+
 function editBunButton(el, field){
     gennedValue = true;
     pycmd('editBunButton◱' + JSON.stringify([el.innerHTML]) + '◱' + field );
@@ -267,7 +280,11 @@ document.body.addEventListener('keydown', function(e) {
     let editWindow = document.getElementsByClassName('miaEditorInput')[0];
     if(editWindow && document.activeElement == editWindow){
         let field = editWindow.dataset.field;
-        if (e.keyCode === 113) {
+        if (e.keyCode === 120) {
+            genChineseButton(editWindow, field);
+        }else if (e.keyCode === 121) {
+            clearChineseButton(editWindow, field);
+        }else if (e.keyCode === 113) {
             editBunButton(editWindow, field);
         }else if(e.keyCode === 114){
             editGoButton(editWindow, field);
@@ -287,6 +304,7 @@ document.body.addEventListener('keydown', function(e) {
 function cleanUpSpaces(text){
       return text.replace(/ /g, '');
 }
+
 function removeBracketsEdit(text) {
   if (text === "") return '';
   let pattern2 = /(\[sound:[^\]]+?\])|(?:\[\d*\])|(?:\[[\w ]+?\])/g;
@@ -327,6 +345,47 @@ function removeBracketsEdit(text) {
   return text;
 }
 
+
+
+function removeChineseBrackets(text) {
+  if (text === "") return text;
+  if(!/\[[^\[]*?\]/.test(text))return text;
+  let pattern2 = /(\[sound:[^\]]+?\])|(?:\[\d*\])/g;
+  if(!/\[[^\[]*?\]/.test(text))return text;
+  replacements = false;
+  pattern = /<[^<]*?>/g;
+  matches = false;
+  if (pattern.test(text)){
+    matches = text.match(pattern)
+    for (x in matches){
+        text = text.replace(matches[x], '---NEWLINE___')
+    }   
+  }
+  
+  matches2 = false;
+  if (pattern2.test(text)){
+    matches2 = text.match(pattern2)
+    for (x in matches2){
+        text = text.replace(matches2[x], '---SOUNDREF___')
+    }   
+  }
+  text = cleanUpSpaces(text);
+  if(matches){
+    for (x in matches){
+      text = text.replace( '---NEWLINE___', matches[x])
+    } 
+
+  }
+
+  text = text.replace(/\[[^\[]*?\]/g, "");
+  if(matches2){
+    for (x in matches2){
+      text = text.replace( '---SOUNDREF___', matches2[x])
+    } 
+
+  }
+  return text
+}
 
 function wrapSelectionEdit(sel) {
     let range, html, wrapper;
