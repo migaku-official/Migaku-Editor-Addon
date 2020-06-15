@@ -296,6 +296,13 @@ document.body.addEventListener('keydown', function(e) {
         }else if(e.keyCode === 86 && e.ctrlKey){
             pycmd('miaStyledPaste');
             e.preventDefault();
+        }else if(e.keyCode === 90 && e.ctrlKey){
+            let editWindow = document.getElementsByClassName('miaEditorInput')[0]
+            if (editWindow){
+                document.execCommand("undo");
+                e.preventDefault();
+            }
+            
         }
     }
     

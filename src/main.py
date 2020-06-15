@@ -276,7 +276,7 @@ def getEditableFields(text):
             fn = fieldname2
         if toReplace not in alreadyReplaced:
             fn = getCleanedFieldName(fn)
-            text = text.replace(toReplace, '<div style="display:inline-block;" class="editableField" data-field="' + fn + '" ondblclick="mieditField(this, \'' + fn + '\')">' + toReplace + "</div>")
+            text = text.replace(toReplace, '<span class="editableField" data-field="' + fn + '" ondblclick="mieditField(this, \'' + fn + '\')">' + toReplace + "</span>")
             alreadyReplaced.append(toReplace)
     for link in linksScripts:
         text = text.replace('◱link◱', link, 1)
