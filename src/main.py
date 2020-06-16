@@ -271,7 +271,7 @@ def getEditableFields(text):
         if raw:
             toReplace = raw
             fn = fieldname
-            linebreak = '<br>'
+            linebreak = '<div></div>'
         else:
             toReplace = raw2
             fn = fieldname2
