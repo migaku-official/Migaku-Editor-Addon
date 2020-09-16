@@ -8,7 +8,7 @@ from anki.hooks import addHook, wrap, runHook, runFilter
 from aqt import mw
 from aqt import DialogManager
 from .miutils import miInfo, miAsk
-from .miaEditor import MIAEditCurrent
+from .migakuEditor import MigakuEditCurrent
 import requests 
 import urllib.parse
 import unicodedata
@@ -28,27 +28,27 @@ import unicodedata
 from .miPasteHandler import PasteHandler
 
 
-miaPasteHander = PasteHandler()
+migakuPasteHander = PasteHandler()
 
 def closeEditor(*args):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if miaEditor:
-        miaEditor.saveAndClose()
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if migakuEditor:
+        migakuEditor.saveAndClose()
 
-def maybeCloseMIAEditor(self, state: str, *args):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if self.state == 'review' and miaEditor and state != 'review':
-        miaEditor.saveAndClose()
+def maybeCloseMigakuEditor(self, state: str, *args):
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if self.state == 'review' and migakuEditor and state != 'review':
+        migakuEditor.saveAndClose()
 
-def unblurMIAEditor(*args):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if miaEditor:
-        miaEditor.unBlur()
+def unblurMigakuEditor(*args):
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if migakuEditor:
+        migakuEditor.unBlur()
 
-def blurMIAEditor(*args):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if miaEditor:
-        miaEditor.blur()
+def blurMigakuEditor(*args):
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if migakuEditor:
+        migakuEditor.blur()
 
 def saveConfig(value, name):
     newConf= getConfig()
@@ -57,26 +57,26 @@ def saveConfig(value, name):
 
 def toggleFieldEditing():
     
-    if mw.miaEditFields.text() == "Enable In-place Editing":
-        mw.miaEditFields.setText("Disable In-place Editing")
-        miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-        if mw.reviewer and not miaEditor:
+    if mw.migakuEditFields.text() == "Enable In-place Editing":
+        mw.migakuEditFields.setText("Disable In-place Editing")
+        migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+        if mw.reviewer and not migakuEditor:
             mw.reviewer.web.eval('ALLOW_FIELD_EDITS = true;')
         saveConfig(True, 'editFields')
     else:
-        mw.miaEditFields.setText("Enable In-place Editing")
+        mw.migakuEditFields.setText("Enable In-place Editing")
         if mw.reviewer:
             mw.reviewer.web.eval('ALLOW_FIELD_EDITS = false;')
         saveConfig(False, 'editFields')
 
 def toggleShowEmpty():
-    if mw.miaShowEmpty.text() == "Show Empty Fields":
-        mw.miaShowEmpty.setText("Hide Empty Fields")
+    if mw.migakuShowEmpty.text() == "Show Empty Fields":
+        mw.migakuShowEmpty.setText("Hide Empty Fields")
         if mw.reviewer:
             mw.reviewer.web.eval('SHOW_EMPTY_FIELDS = true;')
         saveConfig(True, 'showEmptyFields')
     else:
-        mw.miaShowEmpty.setText("Show Empty Fields")
+        mw.migakuShowEmpty.setText("Show Empty Fields")
         if mw.reviewer:
             mw.reviewer.web.eval('SHOW_EMPTY_FIELDS = false;')
         saveConfig(False, 'showEmptyFields')
@@ -90,11 +90,11 @@ def getConfig():
 
 def setupGuiMenu():
     addMenu = False
-    if not hasattr(mw, 'MIAMainMenu'):
-        mw.MIAMainMenu = QMenu('MIA',  mw)
+    if not hasattr(mw, 'MigakuMainMenu'):
+        mw.MigakuMainMenu = QMenu('Migaku',  mw)
         addMenu = True
-    if not hasattr(mw, 'MIAMenuSettings'):
-        mw.MIAMenuSettings = []
+    if not hasattr(mw, 'MigakuMenuSettings'):
+        mw.MigakuMenuSettings = []
     config = getConfig()
     text = "Disable In-place Editing"
     if not config['editFields']:
@@ -102,24 +102,24 @@ def setupGuiMenu():
     text2 = 'Hide Empty Fields'
     if not config['showEmptyFields']:
         text2 = 'Show Empty Fields'
-    mw.miaShowEmpty = QAction(text2, mw)
-    mw.miaShowEmpty.triggered.connect(toggleShowEmpty)
-    mw.MIAMenuSettings.insert(0, mw.miaShowEmpty)
+    mw.migakuShowEmpty = QAction(text2, mw)
+    mw.migakuShowEmpty.triggered.connect(toggleShowEmpty)
+    mw.MigakuMenuSettings.insert(0, mw.migakuShowEmpty)
 
-    mw.miaEditFields = QAction(text, mw)
-    mw.miaEditFields.triggered.connect(toggleFieldEditing)
-    mw.MIAMenuSettings.insert(0, mw.miaEditFields)
+    mw.migakuEditFields = QAction(text, mw)
+    mw.migakuEditFields.triggered.connect(toggleFieldEditing)
+    mw.MigakuMenuSettings.insert(0, mw.migakuEditFields)
     
-    mw.MIAMainMenu.clear()
-    for act in mw.MIAMenuSettings:
-        mw.MIAMainMenu.addAction(act)
-    if hasattr(mw, 'MIAMenuActions'):
-        mw.MIAMainMenu.addSeparator()
-        for act in mw.MIAMenuActions:
-            mw.MIAMainMenu.addAction(act)
+    mw.MigakuMainMenu.clear()
+    for act in mw.MigakuMenuSettings:
+        mw.MigakuMainMenu.addAction(act)
+    if hasattr(mw, 'MigakuMenuActions'):
+        mw.MigakuMainMenu.addSeparator()
+        for act in mw.MigakuMenuActions:
+            mw.MigakuMainMenu.addAction(act)
 
     if addMenu:
-        mw.form.menubar.insertMenu(mw.form.menuHelp.menuAction(), mw.MIAMainMenu)
+        mw.form.menubar.insertMenu(mw.form.menuHelp.menuAction(), mw.MigakuMainMenu)
 
 setupGuiMenu()
 
@@ -135,18 +135,18 @@ def getEditEventJS():
 
 def addEventsToFields(self):
     editFields = 'true'
-    if mw.miaEditFields.text() == "Enable In-place Editing":
+    if mw.migakuEditFields.text() == "Enable In-place Editing":
         editFields = 'false'
     showEmpty = 'true'
-    if mw.miaShowEmpty.text() == "Show Empty Fields":
+    if mw.migakuShowEmpty.text() == "Show Empty Fields":
         showEmpty = 'false'
     editEventJS = getEditEventJS() 
     self.web.eval(editEventJS%(editFields, showEmpty, getImageResizingJS()))
     clearAndDisableIfPersitentEditor(self)
 
 def clearAndDisableIfPersitentEditor(reviewer):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if miaEditor:
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if migakuEditor:
         reviewer.web.eval('clearEditorWindows(); ALLOW_FIELD_EDITS = false;')    
 
 
@@ -160,14 +160,14 @@ def getHTMLFieldNote(self, cmd):
 
 def mylinkhandler(self, cmd):
     if cmd.startswith('bodyClick'):
-       miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-       if miaEditor:
-            miaEditor.blur()
+       migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+       if migakuEditor:
+            migakuEditor.blur()
        return
-    elif cmd.startswith('miaStyledPaste'):
-       miaPasteHander.onPaste()
-    elif cmd.startswith('miaPaste'):
-       miaPasteHander.onPaste()
+    elif cmd.startswith('migakuStyledPaste'):
+       migakuPasteHander.onPaste()
+    elif cmd.startswith('migakuPaste'):
+       migakuPasteHander.onPaste()
     elif cmd.startswith('getFieldForEdit:'):
         field = cmd.split(':')[1]
         if field == 'Tags':
@@ -199,8 +199,8 @@ def mylinkhandler(self, cmd):
         if field == 'Tags':
             return
         else:
-            if hasattr(mw, 'MIAChinese') and mw.MIAChinese:
-                genned = mw.MIAChinese.fetchParsed(html, field, note)
+            if hasattr(mw, 'MigakuChinese') and mw.MigakuChinese:
+                genned = mw.MigakuChinese.fetchParsed(html, field, note)
                 note[field] = genned
                 updateReviewerContents(self, note)
     elif  cmd.startswith('editGoButton◱'):
@@ -307,9 +307,9 @@ def mirender_card(
 
 anki.rsbackend.RustBackend.render_card = mirender_card
 
-Reviewer._linkHandler = wrap(Reviewer._linkHandler, blurMIAEditor)
-Reviewer._showQuestion = wrap(Reviewer._showQuestion, blurMIAEditor)
-Reviewer._showAnswer = wrap(Reviewer._showAnswer, unblurMIAEditor)
+Reviewer._linkHandler = wrap(Reviewer._linkHandler, blurMigakuEditor)
+Reviewer._showQuestion = wrap(Reviewer._showQuestion, blurMigakuEditor)
+Reviewer._showAnswer = wrap(Reviewer._showAnswer, unblurMigakuEditor)
 Reviewer._initWeb = wrap(Reviewer._initWeb, addEventsToFields)
 ogRevLinkHandler = Reviewer._linkHandler
 Reviewer._linkHandler =  mylinkhandler
@@ -320,8 +320,8 @@ def gt(obj):
     return type(obj).__name__
 
 def announceParent(self, event = False):
-    if hasattr(mw, 'miaDictionary'):
-        if mw.miaDictionary and mw.miaDictionary.isVisible():
+    if hasattr(mw, 'migakuDictionary'):
+        if mw.migakuDictionary and mw.migakuDictionary.isVisible():
             parent = self.parentWidget().parentWidget().parentWidget()
             pName = gt(parent)
             if gt(parent) not in ['AddCards', 'EditCurrent']:
@@ -329,7 +329,7 @@ def announceParent(self, event = False):
                 pName = 'Browser'
                 if not parent:
                     return
-            mw.miaDictionary.dict.setCurrentEditor(parent.editor, 'Edit')
+            mw.migakuDictionary.dict.setCurrentEditor(parent.editor, 'Edit')
 
 def addClickToTags(self):
     self.tags.clicked.connect(lambda: announceParent(self))
@@ -339,18 +339,18 @@ TagEdit.focusInEvent = wrap(TagEdit.focusInEvent, announceParent)
 
 
 def checkCurrentEditor(self):
-    if hasattr(mw, 'miaDictionary'):
-        if mw.miaDictionary and mw.miaDictionary.isVisible():
-            mw.miaDictionary.dict.checkEditorClose(self.editor)
+    if hasattr(mw, 'migakuDictionary'):
+        if mw.migakuDictionary and mw.migakuDictionary.isVisible():
+            mw.migakuDictionary.dict.checkEditorClose(self.editor)
 
 def addEditActivated(self, event = False):
-    if hasattr(mw, 'miaDictionary'):
-        if mw.miaDictionary and mw.miaDictionary.isVisible():
-            mw.miaDictionary.dict.setCurrentEditor(self.editor, 'Edit')
+    if hasattr(mw, 'migakuDictionary'):
+        if mw.migakuDictionary and mw.migakuDictionary.isVisible():
+            mw.migakuDictionary.dict.setCurrentEditor(self.editor, 'Edit')
 
 
-MIAEditCurrent._saveAndClose = wrap(MIAEditCurrent._saveAndClose, checkCurrentEditor)
-MIAEditCurrent.mousePressEvent = addEditActivated
+MigakuEditCurrent._saveAndClose = wrap(MigakuEditCurrent._saveAndClose, checkCurrentEditor)
+MigakuEditCurrent.mousePressEvent = addEditActivated
 
 def showAnswerWithoutAudio(self):
         if self.mw.state != "review":
@@ -393,7 +393,7 @@ The front of this card is empty. Please run Tools>Empty Cards."""
             self.mw.web.setFocus()
 
 
-aqt.editcurrent.EditCurrent = MIAEditCurrent
+aqt.editcurrent.EditCurrent = MigakuEditCurrent
 
 mw.reviewer.showAnswerWithoutAudio = showAnswerWithoutAudio 
 mw.reviewer.showQuestionWithoutAudio = showQuestionWithoutAudio 
@@ -409,7 +409,7 @@ if not isWin:
     ogAnkiWebviewBridge = aqt.webview.AnkiWebView._onBridgeCmd
     aqt.webview.AnkiWebView._onBridgeCmd = macFixBridgeCmd
 
-def miaBridgeCmd(self, cmd):
+def migakuBridgeCmd(self, cmd):
         if not self.note or not runHook:
             # shutdown
             return
@@ -433,7 +433,7 @@ def miaBridgeCmd(self, cmd):
             txt = self.mw.col.media.escapeImages(txt, unescape=True)
             self.note.fields[ord] = txt
             # refreshEditor(self)
-            # self.web.eval('pycmd("MIAEditor◲" + currentFieldOrdinal() + "◲" + currentField.innerHTML)')
+            # self.web.eval('pycmd("MigakuEditor◲" + currentFieldOrdinal() + "◲" + currentField.innerHTML)')
             self.saveTags()
 
             if type == "blur":
@@ -462,7 +462,7 @@ def miaBridgeCmd(self, cmd):
         
         
 
-def isOtherMIACMD(cmd):
+def isOtherMigakuCMD(cmd):
     return cmd.startswith('textToJReading') or cmd.startswith('individualJExport') or cmd.startswith('textToCReading')
 
 
@@ -521,25 +521,25 @@ def reloadEditor(editor, nid):
 
 def bridgeReroute(self, cmd):
     className = type(self.parentWindow).__name__
-    if className == 'MIAEditCurrent' and not isOtherMIACMD(cmd):
+    if className == 'MigakuEditCurrent' and not isOtherMigakuCMD(cmd):
         if cmd == "bodyClick":
             self.parentWindow.unBlur()
-            if hasattr(mw, 'miaDictionary'):
-                if mw.miaDictionary and mw.miaDictionary.isVisible() and self.note:
-                    mw.miaDictionary.dict.setCurrentEditor(self, 'Edit')
+            if hasattr(mw, 'migakuDictionary'):
+                if mw.migakuDictionary and mw.migakuDictionary.isVisible() and self.note:
+                    mw.migakuDictionary.dict.setCurrentEditor(self, 'Edit')
             return
         elif cmd.startswith("focus"):
             self.parentWindow.unBlur()
-            if hasattr(mw, 'miaDictionary'):
-                if mw.miaDictionary and mw.miaDictionary.isVisible() and self.note:
-                    mw.miaDictionary.dict.setCurrentEditor(self, 'Edit')
-        miaBridgeCmd(self, cmd)
+            if hasattr(mw, 'migakuDictionary'):
+                if mw.migakuDictionary and mw.migakuDictionary.isVisible() and self.note:
+                    mw.migakuDictionary.dict.setCurrentEditor(self, 'Edit')
+        migakuBridgeCmd(self, cmd)
     else:
-        miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-        if miaEditor and miaEditor.editor and className == 'Browser' and cmd.startswith("blur") or cmd.startswith("key"):
+        migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+        if migakuEditor and migakuEditor.editor and className == 'Browser' and cmd.startswith("blur") or cmd.startswith("key"):
             handleBrowserUpdate(self, cmd)
             try:
-                reloadEditor(miaEditor.editor, self.note.id)
+                reloadEditor(migakuEditor.editor, self.note.id)
             except:
                 return
         else: 
@@ -549,13 +549,13 @@ ogReroute = aqt.editor.Editor.onBridgeCmd
 aqt.editor.Editor.onBridgeCmd = bridgeReroute
 
 def refreshEditorCard(self):
-    miaEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
-    if miaEditor:
+    migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if migakuEditor:
         try:
             c = self.card
             if c:
                 n = c.note()
-                miaEditor.editor.setNote(n)
+                migakuEditor.editor.setNote(n)
             else:
                 closeEditor()
         except:
@@ -564,7 +564,7 @@ def refreshEditorCard(self):
 aqt.reviewer.Reviewer.nextCard = wrap(aqt.reviewer.Reviewer.nextCard, refreshEditorCard)
 
 def changeEditorDestination():
-    aqt.dialogs._dialogs['EditCurrent'] = [MIAEditCurrent, None]
+    aqt.dialogs._dialogs['EditCurrent'] = [MigakuEditCurrent, None]
 
 
 changeEditorDestination()

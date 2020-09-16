@@ -8,7 +8,7 @@ function combineFunctions(action, action2){
 }
 
 setTimeout(addImageResizingEvents, 250);
-miaSetFormat = setFormat
-setFormat = combineFunctions(miaSetFormat, addImageResizingEvents)
-miaSetFields = setFields;
-setFields  = combineFunctions(miaSetFields, addImageResizingEvents)
+migakuSetFormat = setFormat
+setFormat = combineFunctions(migakuSetFormat, addImageResizingEvents)
+migakuSetFields = setFields;
+setFields  = combineFunctions(migakuSetFields, addImageResizingEvents)

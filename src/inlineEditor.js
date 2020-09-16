@@ -18,7 +18,7 @@ let loadingNewCard = false;
 //Functions
 function addCSS(){
     let style = document.getElementsByTagName('style')[0];
-    style.innerHTML = style.innerHTML + '.imageResizeWrapper:hover{cursor:pointer;}.miaEditorInput img{cursor:pointer; max-height:none; max-width:none; width: auto; height: auto;} .emptyEditable{border: 1px solid pink !important; display: inline-block; width: 100px;}';
+    style.innerHTML = style.innerHTML + '.imageResizeWrapper:hover{cursor:pointer;}.migakuEditorInput img{cursor:pointer; max-height:none; max-width:none; width: auto; height: auto;} .emptyEditable{border: 1px solid pink !important; display: inline-block; width: 100px;}';
 }
 
     
@@ -62,7 +62,7 @@ function _updateQA(html, fadeTime, onupdate, onshown) {
                 makeEmptyFieldsSelectable();
                 loadGeneratedField()
                 loadingNewCard = false;
-                //pycmd('miacopy' + document.documentElement.innerHTML);
+               
             });
         });
     });
@@ -138,7 +138,7 @@ function mieditField(element, field) {
     hideElementAndChildren(element);
     input.style.position = 'absolute';
     input.style.top = (document.documentElement.scrollTop + top) + 'px';
-    input.classList.add('miaEditorInput');
+    input.classList.add('migakuEditorInput');
     //input.style.border = ('57AAFC')
     input.style.left = left + 'px';
     input.style.color = color;
@@ -174,13 +174,13 @@ function finalizeTagsEdit(el, field){
 
 document.documentElement.addEventListener('mousedown', function(el){
     el = el.target;
-    let editWindows = document.getElementsByClassName('miaEditorInput');
+    let editWindows = document.getElementsByClassName('migakuEditorInput');
     if(editWindows.length == 0)return;
-    if(!el.classList.contains('miaEditorInput')){
+    if(!el.classList.contains('migakuEditorInput')){
         while(true){
             el = el.parentElement;
             if(!el)break;
-            if(el.classList.contains('miaEditorInput')){
+            if(el.classList.contains('migakuEditorInput')){
                 return
             }
         }
@@ -193,7 +193,7 @@ document.documentElement.addEventListener('mousedown', function(el){
 
 function clearEditorWindows(){
 
-    let editWindows = document.getElementsByClassName('miaEditorInput');
+    let editWindows = document.getElementsByClassName('migakuEditorInput');
     if(editWindows.length > 0) {
         for (var i = editWindows.length - 1; i > -1 ; i--) {
             editWindows[i].parentNode.removeChild(editWindows[i]);
@@ -228,7 +228,7 @@ function selectElementContents(el) {
 }
     
 function setFieldValue(value, field){
-    let editWindow = document.getElementsByClassName('miaEditorInput')[0];
+    let editWindow = document.getElementsByClassName('migakuEditorInput')[0];
     previousValue = JSON.parse(value)[0];
     editWindow.innerHTML = previousValue;
     editWindow.focus();
@@ -277,7 +277,7 @@ function cleanGennedText(el, field){
 }
 
 document.body.addEventListener('keydown', function(e) {
-    let editWindow = document.getElementsByClassName('miaEditorInput')[0];
+    let editWindow = document.getElementsByClassName('migakuEditorInput')[0];
     if(editWindow && document.activeElement == editWindow){
         let field = editWindow.dataset.field;
         if (e.keyCode === 120) {
@@ -291,13 +291,13 @@ document.body.addEventListener('keydown', function(e) {
         }else if(e.keyCode === 115){
             cleanGennedText(editWindow, field);
         }else if(e.keyCode === 86 && e.ctrlKey && e.shiftKey){
-            pycmd('miaPaste');
+            pycmd('migakuPaste');
             e.preventDefault();
         }else if(e.keyCode === 86 && e.ctrlKey){
-            pycmd('miaStyledPaste');
+            pycmd('migakuStyledPaste');
             e.preventDefault();
         }else if(e.keyCode === 90 && e.ctrlKey){
-            let editWindow = document.getElementsByClassName('miaEditorInput')[0]
+            let editWindow = document.getElementsByClassName('migakuEditorInput')[0]
             if (editWindow){
                 document.execCommand("undo");
                 e.preventDefault();
@@ -432,7 +432,7 @@ function miPasteHTML(html, internal, extendedMode) {
         html = html.replace(/<((?!img)[^>])+?>/g, '')
     }
     document.execCommand("inserthtml", false, html);
-    let editWindow = document.getElementsByClassName('miaEditorInput')[0];
+    let editWindow = document.getElementsByClassName('migakuEditorInput')[0];
     let field = editWindow.dataset.field;
     finalizeSelectedFieldEdit(editWindow, field);
     addImageResizingEventsToElement(editWindow);

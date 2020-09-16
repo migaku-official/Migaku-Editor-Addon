@@ -90,10 +90,10 @@ darkModeCss = '''
                    
 '''
 
-def getMiaHtml():
-    MiaHtml = join(dirname(__file__), "miaEditor.html")
-    with open(MiaHtml, "r", encoding="utf-8") as MiaHtmlFile:
-        return MiaHtmlFile.read() 
+def getMigakuHtml():
+    MigakuHtml = join(dirname(__file__), "migakuEditor.html")
+    with open(MigakuHtml, "r", encoding="utf-8") as MigakuHtmlFile:
+        return MigakuHtmlFile.read() 
 
 def getImageResizingJS():
     imageResizingJS = join(dirname(__file__), "imageResizing.js")
@@ -110,16 +110,16 @@ def getOtherEditorJS():
     with open(OtherEditorJS, "r", encoding="utf-8") as OtherEditorJSFile:
         return OtherEditorJSFile.read() 
 
-MIA_HTML = getMiaHtml()
+Migaku_HTML = getMigakuHtml()
 RESIZING_JS = getImageResizingJS()
 OTHER_EDITOR_JS = getOtherEditorJS()
 OVERWRITES_JS = getOverwritesJS()
 
 
 def miSetupWeb(self):
-        self.miaEditorNightMode = False
+        self.migakuEditorNightMode = False
         if self.mw.pm.night_mode():
-                self.miaEditorNightMode = True
+                self.migakuEditorNightMode = True
         self.darkModeCss = ''
         self.hiddenColorCss = '''.fieldsHidden a, .fieldsHidden pitch-drop, .fieldsHidden high-pitch,.fieldsHidden pitch-overbar,.fieldsHidden pitch-box, .fieldsHidden span, .fieldsHidden div div{
             background-color: #E4E4E4 !important; 
@@ -165,7 +165,7 @@ def miSetupWeb(self):
         """ % dict(flds=_("Fields"), cards=_("Cards"), rightbts="".join(righttopbtns),
                    fldsTitle=_("Customize Fields"),
                    cardsTitle=shortcut(_("Customize Card Templates (Ctrl+L)")))
-        if self.miaEditorNightMode:  
+        if self.migakuEditorNightMode:  
             self.darkModeCss = '''::-webkit-scrollbar{
             width: 7px;
         }
@@ -188,10 +188,10 @@ def miSetupWeb(self):
         bgcol = self.mw.app.palette().window().color().name()
         # then load page
         # use when testing js:
-        # global MIA_HTML, RESIZING_JS
-        # MIA_HTML = getMiaHtml()
+        # global Migaku_HTML, RESIZING_JS
+        # Migaku_HTML = getMigakuHtml()
         # RESIZING_JS = getImageResizingJS()
-        self.web.stdHtml(MIA_HTML % (
+        self.web.stdHtml(Migaku_HTML % (
             bgcol, bgcol, self.hiddenColorCss, self.darkModeCss,
             topbuts, 
             _("Show Duplicates"), RESIZING_JS, OVERWRITES_JS),
@@ -201,9 +201,9 @@ def miSetupWeb(self):
 
 def addScripts(self):
     className = type(self.parentWindow).__name__
-    if className == 'MIAEditCurrent':
+    if className == 'MigakuEditCurrent':
         miSetupWeb(self)
-        if hasattr(self.mw, 'miaDictionary'):
+        if hasattr(self.mw, 'migakuDictionary'):
             self.web.parentEditor = self
             addBodyClick(self)
             addHotkeys(self)
@@ -234,16 +234,16 @@ def searchTerm(self):
     if text:
         text = re.sub(r'\[[^\]]+?\]', '', text)
         text = text.strip()
-        if not mw.miaDictionary or not mw.miaDictionary.isVisible():
+        if not mw.migakuDictionary or not mw.migakuDictionary.isVisible():
             mw.dictionaryInit(text)
-        mw.miaDictionary.ensureVisible()
-        mw.miaDictionary.initSearch(text)
+        mw.migakuDictionary.ensureVisible()
+        mw.migakuDictionary.initSearch(text)
         if self.title == 'main webview':
             if mw.state == 'review':
-                mw.miaDictionary.dict.setReviewer(mw.reviewer)
+                mw.migakuDictionary.dict.setReviewer(mw.reviewer)
         elif self.title == 'editor':
             target = 'Edit'
-            mw.miaDictionary.dict.setCurrentEditor(self.parentEditor, target)
+            mw.migakuDictionary.dict.setCurrentEditor(self.parentEditor, target)
 
 def addBodyClick(self):
     self.web.eval(bodyClick)
@@ -264,7 +264,7 @@ addonPath = dirname(__file__)
 def miOnHtmlEdit(self, field):
     mainEditor = self.parentWindow
     className = type(mainEditor).__name__        
-    if className == 'MIAEditCurrent':
+    if className == 'MigakuEditCurrent':
         
         d = QDialog(self.widget)
         d.setModal(True)
@@ -291,7 +291,7 @@ def miOnHtmlEdit(self, field):
 ogHTMLEDIT = aqt.editor.Editor._onHtmlEdit
 aqt.editor.Editor._onHtmlEdit = miOnHtmlEdit
 
-class MIAEditCurrent(QDialog):
+class MigakuEditCurrent(QDialog):
     def __init__(self, mw):
         QDialog.__init__(self, None, Qt.Window)
         mw.setupDialogGC(self)
@@ -301,7 +301,7 @@ class MIAEditCurrent(QDialog):
         self.form.setupUi(self)
         self.form.verticalLayout.setContentsMargins(0,0,0,0)
         self.form.buttonBox.setContentsMargins(0,0,10,10)
-        self.setWindowTitle(_("Editor"))
+        self.setWindowTitle("Migaku Editor")
         self.setMinimumHeight(400)
         self.setMinimumWidth(250)
         self.form.buttonBox.button(QDialogButtonBox.Close).setShortcut(
@@ -329,7 +329,7 @@ class MIAEditCurrent(QDialog):
         self.show()
 
 
-        self.setWindowIcon(QIcon(join(addonPath, 'icons', 'mia.png')))
+        self.setWindowIcon(QIcon(join(addonPath, 'icons', 'migaku.png')))
         
     def saveTagsReload(self):
         text = self.editor.tags.text()
@@ -394,8 +394,8 @@ class MIAEditCurrent(QDialog):
 
         self.reloadCard()
         self._saveAndClose()
-        self.mw.previousMIAEditorValues = []
-        if mw.miaEditFields.text() == "Disable In-place Editing":
+        self.mw.previousMigakuEditorValues = []
+        if mw.migakuEditFields.text() == "Disable In-place Editing":
             self.mw.reviewer.web.eval('ALLOW_FIELD_EDITS = true;')
 
     def _saveAndClose(self):
