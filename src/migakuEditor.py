@@ -198,12 +198,14 @@ def miSetupWeb(self):
                          css=["editor.css"],
                          js=["jquery.js", "editor.js"])
 
+mw.migakuEditorLoadedAfterDictionary = True
+mw.migakuEditorLoaded = True
 
 def addScripts(self):
     className = type(self.parentWindow).__name__
     if className == 'MigakuEditCurrent':
         miSetupWeb(self)
-        if hasattr(self.mw, 'migakuDictionary'):
+        if self.mw.migakuEditorLoadedAfterDictionary and hasattr(self.mw, 'migakuDictionary'):
             self.web.parentEditor = self
             addBodyClick(self)
             addHotkeys(self)

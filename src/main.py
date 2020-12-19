@@ -260,7 +260,7 @@ def getCleanedFieldName(fn):
     return fn
 
 def getEditableFields(text):
-    pattern = r'(<div.*?display-type=\".+?\" class=\"wrapped-.{3,4}nese\">{{([^#^\/]+?)}}<\/div>)|({{([^#^\/]+?)}})'
+    pattern = r'(<div.*?display-type=\".+?\" class=\"wrapped-.{3,4}nese\">[\s]*?{{([^#^\/]+?)}}[\s]*?<\/div>)|({{([^#^\/]+?)}})'
     linksScriptsPattern = r'<a[^>]+?href=[^>]+?>|\<script\>[\s\S]+<\/script>'
     linksScripts = re.findall(linksScriptsPattern, text)
     text = re.sub(linksScriptsPattern, '◱link◱', text)
@@ -518,22 +518,25 @@ def reloadEditor(editor, nid):
     if nid == editor.note.id:
         editor.setNote(mw.col.getNote(nid))
 
+def reloadEditorAndBrowser(note):
+    editcurrent = aqt.DialogManager._dialogs["EditCurrent"][1]
+    if editcurrent:
+        editcurrent.editor.setNote(note)
+    refreshBrowser();
+
+
+mw.migakuReloadEditorAndBrowser = reloadEditorAndBrowser
 
 def bridgeReroute(self, cmd):
     className = type(self.parentWindow).__name__
     if className == 'MigakuEditCurrent' and not isOtherMigakuCMD(cmd):
         if cmd == "bodyClick":
             self.parentWindow.unBlur()
-            if hasattr(mw, 'migakuDictionary'):
-                if mw.migakuDictionary and mw.migakuDictionary.isVisible() and self.note:
-                    mw.migakuDictionary.dict.setCurrentEditor(self, 'Edit')
-            return
         elif cmd.startswith("focus"):
-            self.parentWindow.unBlur()
-            if hasattr(mw, 'migakuDictionary'):
-                if mw.migakuDictionary and mw.migakuDictionary.isVisible() and self.note:
-                    mw.migakuDictionary.dict.setCurrentEditor(self, 'Edit')
-        migakuBridgeCmd(self, cmd)
+            self.parentWindow.unBlur() 
+            ogReroute(self, cmd)
+        else:
+            migakuBridgeCmd(self, cmd)
     else:
         migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
         if migakuEditor and migakuEditor.editor and className == 'Browser' and cmd.startswith("blur") or cmd.startswith("key"):
