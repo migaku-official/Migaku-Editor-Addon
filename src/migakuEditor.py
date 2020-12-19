@@ -198,8 +198,11 @@ def miSetupWeb(self):
                          css=["editor.css"],
                          js=["jquery.js", "editor.js"])
 
+
 mw.migakuEditorLoadedAfterDictionary = True
 mw.migakuEditorLoaded = True
+
+
 
 def addScripts(self):
     className = type(self.parentWindow).__name__

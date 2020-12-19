@@ -22,10 +22,11 @@ from . import Pyperclip
 from pathlib import Path
 import anki
 import anki.backend_pb2 as pb
-from anki.rsbackend import TemplateReplacementList, proto_replacement_list_to_native
 from typing import Dict, Tuple
 import unicodedata
 from .miPasteHandler import PasteHandler
+from anki import hooks
+
 
 
 migakuPasteHander = PasteHandler()
@@ -260,6 +261,8 @@ def getCleanedFieldName(fn):
     return fn
 
 def getEditableFields(text):
+    if 'style="display:inline-block;" class="editableField"' in text:
+        return text
     pattern = r'(<div.*?display-type=\".+?\" class=\"wrapped-.{3,4}nese\">[\s]*?{{([^#^\/]+?)}}[\s]*?<\/div>)|({{([^#^\/]+?)}})'
     linksScriptsPattern = r'<a[^>]+?href=[^>]+?>|\<script\>[\s\S]+<\/script>'
     linksScripts = re.findall(linksScriptsPattern, text)
@@ -284,28 +287,38 @@ def getEditableFields(text):
         text = text.replace('◱link◱', link, 1)
     return text
 
-def mirender_card(
-        self, qfmt: str, afmt: str, fields: Dict[str, str], card_ord: int
-    ) -> Tuple[TemplateReplacementList, TemplateReplacementList]:
-        afmt = getEditableFields(afmt)
-        qfmt = getEditableFields(qfmt)
-        out = self._run_command(
-            pb.BackendInput(
-                render_card=pb.RenderCardIn(
-                    question_template=qfmt,
-                    answer_template=afmt,
-                    fields=fields,
-                    card_ordinal=card_ord,
-                )
-            )
-        ).render_card
 
-        qnodes = proto_replacement_list_to_native(out.question_nodes)  # type: ignore
-        anodes = proto_replacement_list_to_native(out.answer_nodes)  # type: ignore
 
-        return (qnodes, anodes)
+from anki.rsbackend import to_json_bytes
+from anki.template import  PartiallyRenderedCard
 
-anki.rsbackend.RustBackend.render_card = mirender_card
+originalQuestion = False
+originalAnswer = False
+ogTemplate = False
+
+def mi_partially_render(self) -> PartiallyRenderedCard:
+    global originalAnswer, originalQuestion, ogTemplate
+    if self._template:
+        out = self._col.backend.render_uncommitted_card(
+            note=self._note.to_backend_note(),
+            card_ord=self._card.ord,
+            template=to_json_bytes(self._template),
+            fill_empty=self._fill_empty,
+        )
+    else:
+        template = self._card.template().copy()
+        template['afmt'] = getEditableFields(template['afmt'])
+        template['qfmt'] = getEditableFields(template['qfmt'])
+        out = self._col.backend.render_uncommitted_card(
+            note=self._note.to_backend_note(),
+            card_ord=self._card.ord,
+            template=to_json_bytes(template),
+            fill_empty=self._fill_empty,
+        )
+    return PartiallyRenderedCard.from_proto(out)
+
+
+anki.template.TemplateRenderContext._partially_render = mi_partially_render
 
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, blurMigakuEditor)
 Reviewer._showQuestion = wrap(Reviewer._showQuestion, blurMigakuEditor)
@@ -313,7 +326,6 @@ Reviewer._showAnswer = wrap(Reviewer._showAnswer, unblurMigakuEditor)
 Reviewer._initWeb = wrap(Reviewer._initWeb, addEventsToFields)
 ogRevLinkHandler = Reviewer._linkHandler
 Reviewer._linkHandler =  mylinkhandler
-
 
 
 def gt(obj):
@@ -523,9 +535,10 @@ def reloadEditorAndBrowser(note):
     if editcurrent:
         editcurrent.editor.setNote(note)
     refreshBrowser();
-
-
+    
+    
 mw.migakuReloadEditorAndBrowser = reloadEditorAndBrowser
+
 
 def bridgeReroute(self, cmd):
     className = type(self.parentWindow).__name__
