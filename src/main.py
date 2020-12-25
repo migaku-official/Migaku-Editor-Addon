@@ -195,13 +195,19 @@ def mylinkhandler(self, cmd):
         refreshBrowser()
     elif cmd.startswith('miReload'):
         reloadReviewer(self)
-    elif  cmd.startswith('editGenChin◱'):
+    elif  cmd.startswith('editGenLanguage◱'):
         html, field, note = getHTMLFieldNote(self, cmd)
+        language = cmd.split('◱')[3]
         if field == 'Tags':
             return
         else:
-            if hasattr(mw, 'MigakuChinese') and mw.MigakuChinese:
-                genned = mw.MigakuChinese.fetchParsed(html, field, note)
+            print(language)
+            if hasattr(mw, 'Migaku' + language):
+                print("YES")
+                languageHandler = getattr(mw, 'Migaku' + language)
+                if not languageHandler:
+                    return
+                genned = languageHandler.fetchParsed(html, field, note)
                 note[field] = genned
                 updateReviewerContents(self, note)
     elif  cmd.startswith('editGoButton◱'):

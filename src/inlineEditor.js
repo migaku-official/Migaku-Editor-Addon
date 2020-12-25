@@ -251,13 +251,36 @@ function editGoButton(el, field){
     pycmd('editGoButton◱' + JSON.stringify([text]) + '◱' + field );
 }
 
-function genChineseButton(el, field){
+function genLanguageButton(el, field){
     gennedValue = true;
-    pycmd('editGenChin◱' + JSON.stringify([el.innerHTML]) + '◱' + field );
+    const language = getLanguageOfCardType();
+    pycmd('editGenLanguage◱' + JSON.stringify([el.innerHTML]) + '◱' + field + '◱' + language   );
 }
 
-function clearChineseButton(el, field){
-    previousValue = removeChineseBrackets(el.innerHTML);
+
+function getLanguageOfCardType(){
+    let wrapped = document.getElementsByClassName("wrapped-chinese");
+    if(wrapped.length > 0) return "Chinese"
+    wrapped = document.getElementsByClassName("wrapped-german");
+    if(wrapped.length > 0) return "German"
+    wrapped = document.getElementsByClassName("wrapped-french");
+    if(wrapped.length > 0) return "French"
+    wrapped = document.getElementsByClassName("wrapped-spanish");
+    if(wrapped.length > 0) return "Spanish"
+    wrapped = document.getElementsByClassName("wrapped-english");
+    if(wrapped.length > 0) return "English"
+    wrapped = document.getElementsByClassName("wrapped-portuguese");
+    if(wrapped.length > 0) return "Portuguese"
+    wrapped = document.getElementsByClassName("wrapped-russian");
+    if(wrapped.length > 0) return "Russian"
+    wrapped = document.getElementsByClassName("wrapped-italian");
+    if(wrapped.length > 0) return "Italian"
+
+}
+
+
+function clearLanguageButton(el, field){
+    previousValue = removeLanguageBrackets(el.innerHTML);
     el.innerHTML = previousValue;
     el.focus();
     finalizeSelectedFieldEdit(el, el.dataset.field);
@@ -281,9 +304,9 @@ document.body.addEventListener('keydown', function(e) {
     if(editWindow && document.activeElement == editWindow){
         let field = editWindow.dataset.field;
         if (e.keyCode === 120) {
-            genChineseButton(editWindow, field);
+            genLanguageButton(editWindow, field);
         }else if (e.keyCode === 121) {
-            clearChineseButton(editWindow, field);
+            clearLanguageButton(editWindow, field);
         }else if (e.keyCode === 113) {
             editBunButton(editWindow, field);
         }else if(e.keyCode === 114){
@@ -354,7 +377,7 @@ function removeBracketsEdit(text) {
 
 
 
-function removeChineseBrackets(text) {
+function removeLanguageBrackets(text) {
   if (text === "") return text;
   if(!/\[[^\[]*?\]/.test(text))return text;
   let pattern2 = /(\[sound:[^\]]+?\])|(?:\[\d*\])/g;
@@ -376,7 +399,8 @@ function removeChineseBrackets(text) {
         text = text.replace(matches2[x], '---SOUNDREF___')
     }   
   }
-  text = cleanUpSpaces(text);
+  const chinese = document.getElementsByClassName("wrapped-chinese");
+  if(chinese.length > 0) text = cleanUpSpaces(text);
   if(matches){
     for (x in matches){
       text = text.replace( '---NEWLINE___', matches[x])
