@@ -302,6 +302,14 @@ originalQuestion = False
 originalAnswer = False
 ogTemplate = False
 
+
+def getTemplateCheckingForCloze(card):
+    template = card.template().copy()
+    if card.type == 1:
+        template["ord"] = card.ord
+    return template
+    
+
 def mi_partially_render(self) -> PartiallyRenderedCard:
     global originalAnswer, originalQuestion, ogTemplate
     if self._template:
@@ -312,7 +320,7 @@ def mi_partially_render(self) -> PartiallyRenderedCard:
             fill_empty=self._fill_empty,
         )
     else:
-        template = self._card.template().copy()
+        template = getTemplateCheckingForCloze(self._card)
         template['afmt'] = getEditableFields(template['afmt'])
         template['qfmt'] = getEditableFields(template['qfmt'])
         out = self._col.backend.render_uncommitted_card(
