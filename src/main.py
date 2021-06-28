@@ -27,8 +27,6 @@ import unicodedata
 from .miPasteHandler import PasteHandler
 from anki import hooks
 
-
-
 migakuPasteHander = PasteHandler()
 
 def closeEditor(*args):
@@ -145,6 +143,8 @@ def addEventsToFields(self):
     self.web.eval(editEventJS%(editFields, showEmpty, getImageResizingJS()))
     clearAndDisableIfPersitentEditor(self)
 
+mw.addMigakuEditorEvents = addEventsToFields
+
 def clearAndDisableIfPersitentEditor(reviewer):
     migakuEditor = aqt.DialogManager._dialogs["EditCurrent"][1]
     if migakuEditor:
@@ -201,9 +201,7 @@ def mylinkhandler(self, cmd):
         if field == 'Tags':
             return
         else:
-            print(language)
             if hasattr(mw, 'Migaku' + language):
-                print("YES")
                 languageHandler = getattr(mw, 'Migaku' + language)
                 if not languageHandler:
                     return
@@ -333,6 +331,10 @@ def mi_partially_render(self) -> PartiallyRenderedCard:
 
 
 anki.template.TemplateRenderContext._partially_render = mi_partially_render
+
+
+mw.blurMigakuEditor = blurMigakuEditor
+mw.unblurMigakuEditor = unblurMigakuEditor
 
 Reviewer._linkHandler = wrap(Reviewer._linkHandler, blurMigakuEditor)
 Reviewer._showQuestion = wrap(Reviewer._showQuestion, blurMigakuEditor)
