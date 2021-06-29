@@ -302,8 +302,9 @@ ogTemplate = False
 
 
 def getTemplateCheckingForCloze(card):
+    model = card.model()
     template = card.template().copy()
-    if card.type == 1:
+    if model["type"] == 1:
         template["ord"] = card.ord
     return template
     
